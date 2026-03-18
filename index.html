@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juego Programación PRO</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial;
+    background:linear-gradient(135deg,#1e3c72,#2a5298);
+    color:white;
+    text-align:center;
+}
+h1{
+    background:rgba(0,0,0,0.4);
+    padding:20px;
+}
+.contenedor{
+    margin:20px auto;
+    padding:20px;
+    width:80%;
+    background:rgba(0,0,0,0.5);
+    border-radius:15px;
+    box-shadow:0 0 15px cyan;
+}
+button{
+    padding:10px;
+    margin:10px;
+    border:none;
+    border-radius:10px;
+    background:#00c6ff;
+    color:white;
+    cursor:pointer;
+}
+button:hover{
+    background:#0072ff;
+}
+#barraXP{
+    width:80%;
+    height:20px;
+    background:#333;
+    border-radius:20px;
+    margin:auto;
+}
+#progresoXP{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,lime,cyan);
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎮 Aprende Programación</h1>
+
+<div class="contenedor">
+<p id="vidas"></p>
+
+<div id="barraXP">
+<div id="progresoXP"></div>
+</div>
+
+<p id="nivelTexto"></p>
+<button onclick="reiniciarJuego()">🔄 Reiniciar</button>
+</div>
+
+<div class="contenedor">
+<h2 id="pregunta"></h2>
+<div id="opciones"></div>
+</div>
+
+<audio id="ok" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
+<audio id="fail" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
+
+<script>
+
+let vidas=3;
+let xp=0;
+let nivel=0;
+let preguntaActual=0;
+
+const juego=[
+
+// NIVEL 1
+[
+{p:"¿Qué es una variable?",o:["Guardar datos","Bucle","Evento","HTML","CSS"],c:0},
+{p:"¿Qué es HTML?",o:["Estructura web","Base datos","Juego","App","Servidor"],c:0},
+{p:"¿Qué hace CSS?",o:["Diseño","Lógica","BD","Servidor","Nada"],c:0},
+{p:"¿Qué es JS?",o:["Lenguaje programación","Color","Imagen","Texto","Nada"],c:0},
+{p:"¿Etiqueta básica?",o:["<p>","if","for","while","var"],c:0}
+],
+
+// NIVEL 2
+[
+{p:"¿Qué hace if?",o:["Condición","Loop","Función","Variable","Nada"],c:0},
+{p:"¿Qué es else?",o:["Alternativa","Error","Loop","Nada","HTML"],c:0},
+{p:"¿Comparador?",o:["==","++","--","//","??"],c:0},
+{p:"¿Mayor que?",o:[">","<","=","!=","&&"],c:0},
+{p:"¿Menor que?",o:["<",">","=","!=","||"],c:0}
+],
+
+// NIVEL 3
+[
+{p:"¿Qué es for?",o:["Bucle","Variable","Función","Evento","Nada"],c:0},
+{p:"¿Qué es while?",o:["Bucle","HTML","CSS","Nada","Condición"],c:0},
+{p:"¿Repetir código?",o:["Bucle","If","Función","Nada","HTML"],c:0},
+{p:"¿Incremento?",o:["i++","i--","i=","i==","++--"],c:0},
+{p:"¿Fin de bloque?",o:["}","(",")",";","["],c:0}
+],
+
+// NIVEL 4
+[
+{p:"¿Qué es función?",o:["Bloque código","Variable","Loop","Nada","HTML"],c:0},
+{p:"¿Declarar función?",o:["function","var","if","for","css"],c:0},
+{p:"¿Parámetro?",o:["Dato entrada","Salida","Loop","Nada","HTML"],c:0},
+{p:"¿Retorno?",o:["return","break","if","css","html"],c:0},
+{p:"¿Llamar función?",o:["nombre()","if","for","loop","html"],c:0}
+],
+
+// NIVEL 5
+[
+{p:"¿Qué es DOM?",o:["HTML en JS","BD","Loop","Nada","Servidor"],c:0},
+{p:"¿Seleccionar id?",o:["getElementById","query","css","html","loop"],c:0},
+{p:"¿Cambiar texto?",o:["innerHTML","style","loop","var","id"],c:0},
+{p:"¿Evento click?",o:["onclick","hover","css","html","id"],c:0},
+{p:"¿Modificar estilo?",o:["style","html","loop","var","id"],c:0}
+],
+
+// NIVEL 6
+[
+{p:"¿Array?",o:["Lista datos","Variable","Loop","Nada","HTML"],c:0},
+{p:"¿Acceder array?",o:["[ ]","{ }","( )","< >","??"],c:0},
+{p:"¿Primer índice?",o:["0","1","-1","2","3"],c:0},
+{p:"¿Longitud?",o:["length","size","count","num","total"],c:0},
+{p:"¿Agregar dato?",o:["push","add","put","set","new"],c:0}
+],
+
+// NIVEL 7
+[
+{p:"¿Objeto?",o:["Propiedades","Loop","HTML","Nada","BD"],c:0},
+{p:"¿Clave-valor?",o:["prop:valor","loop","html","css","id"],c:0},
+{p:"¿Acceder?",o:["obj.prop","obj[]","html","css","loop"],c:0},
+{p:"¿JSON?",o:["Texto objetos","Loop","HTML","Nada","BD"],c:0},
+{p:"¿Crear objeto?",o:["{ }","[ ]","( )","< >","??"],c:0}
+],
+
+// NIVEL 8
+[
+{p:"¿Evento?",o:["Acción usuario","Loop","BD","Nada","HTML"],c:0},
+{p:"¿Click?",o:["onclick","onloop","onhtml","oncss","id"],c:0},
+{p:"¿Tecla?",o:["keydown","keyup","loop","html","css"],c:0},
+{p:"¿Mouse?",o:["mouseover","loop","html","css","id"],c:0},
+{p:"¿Escuchar evento?",o:["addEventListener","loop","css","html","id"],c:0}
+],
+
+// NIVEL 9
+[
+{p:"¿Base datos?",o:["Guardar info","Loop","HTML","Nada","CSS"],c:0},
+{p:"¿SQL?",o:["Lenguaje BD","Loop","HTML","Nada","CSS"],c:0},
+{p:"¿Insertar?",o:["INSERT","DELETE","SELECT","UPDATE","DROP"],c:0},
+{p:"¿Seleccionar?",o:["SELECT","INSERT","DELETE","DROP","UPDATE"],c:0},
+{p:"¿Eliminar?",o:["DELETE","INSERT","SELECT","DROP","UPDATE"],c:0}
+],
+
+// NIVEL 10
+[
+{p:"¿Full stack?",o:["Front+Back","Solo HTML","Solo CSS","Solo JS","Nada"],c:0},
+{p:"¿Frontend?",o:["Interfaz","Servidor","BD","Nada","Loop"],c:0},
+{p:"¿Backend?",o:["Servidor","HTML","CSS","Nada","Loop"],c:0},
+{p:"¿API?",o:["Comunicación","Loop","HTML","Nada","CSS"],c:0},
+{p:"¿Deploy?",o:["Publicar","Borrar","Loop","Nada","CSS"],c:0}
+]
+
+];
+
+// ===== FUNCIONES =====
+
+function actualizarUI(){
+document.getElementById("vidas").innerHTML="❤️".repeat(vidas);
+document.getElementById("progresoXP").style.width=xp+"%";
+document.getElementById("nivelTexto").innerText=
+"Nivel "+(nivel+1)+" - Pregunta "+(preguntaActual+1)+"/5";
+}
+
+function cargarPregunta(){
+let p=juego[nivel][preguntaActual];
+document.getElementById("pregunta").innerText=p.p;
+
+let html="";
+p.o.forEach((op,i)=>{
+html+=`<button onclick="responder(${i})">${op}</button>`;
+});
+
+document.getElementById("opciones").innerHTML=html;
+}
+
+function responder(i){
+let p=juego[nivel][preguntaActual];
+
+if(i===p.c){
+document.getElementById("ok").play();
+xp=Math.min(xp+2,100);
+preguntaActual++;
+
+if(preguntaActual>=5){
+nivel++;
+preguntaActual=0;
+
+if(nivel>=juego.length){
+alert("🏆 ¡GANASTE TODO EL JUEGO!");
+reiniciarJuego();
+return;
+}
+
+alert("🎉 Nivel superado!");
+}
+}else{
+document.getElementById("fail").play();
+vidas--;
+
+if(vidas<=0){
+alert("💀 Game Over");
+reiniciarJuego();
+return;
+}
+}
+
+actualizarUI();
+cargarPregunta();
+}
+
+function reiniciarJuego(){
+vidas=3;
+xp=0;
+nivel=0;
+preguntaActual=0;
+actualizarUI();
+cargarPregunta();
+}
+
+// ===== INICIO =====
+actualizarUI();
+cargarPregunta();
+
+</script>
+
+</body>
+</html>
